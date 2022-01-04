@@ -412,8 +412,15 @@ def _DetectVisualStudioVersions(versions_to_check, force_express):
       '15.0': '2017',
       '16.0': '2019'
   }
+  shell_path = os.environ.get('VSINSTALLDIR')
+  shell_path = _ConvertToCygpath(shell_path) if shell_path else None
+  shell_version = os.environ.get('VisualStudioVersion') if shell_path else None
   versions = []
   for version in versions_to_check:
+    if version == shell_version:
+      if os.path.exists(shell_path):
+        versions.append(_CreateVersion(version_to_year[version], shell_path))
+
     # Old method of searching for which VS version is installed
     # We don't use the 2010-encouraged-way because we also want to get the
     # path to the binaries, which it doesn't offer.
